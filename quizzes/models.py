@@ -92,6 +92,12 @@ class Answer(TimeStampedModel):
         default=uuid_lib.uuid4,
         editable=False)
 
+    def get_slug(self):
+        return self.question.slug + '-' + str(self.order)
+
+    slug = AutoSlugField(
+        populate_from=get_slug, unique=True)
+
     order = models.PositiveIntegerField(default=0)
 
     question = models.ForeignKey(

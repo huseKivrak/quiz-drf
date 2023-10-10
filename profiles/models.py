@@ -2,6 +2,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+DEFAULT_AVATAR = 'avatars/default.png'
 
 
 # User Model:
@@ -18,7 +19,8 @@ class User(AbstractUser):
         # ! (2Scoops: had _('Type'), here but caused an error)
         max_length=50, choices=Types.choices, default=Types.STUDENT)
 
-    avatar = models.ImageField(upload_to='avatars/', blank=True)
+    avatar = models.ImageField(
+        upload_to='avatars/', blank=True, default=DEFAULT_AVATAR)
 
     def save(self, *args, **kwargs):
         # If a new user, set the user's type based off the base_type property
