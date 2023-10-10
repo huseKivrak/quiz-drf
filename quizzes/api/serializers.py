@@ -11,6 +11,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, required=False)
+
     class Meta:
         model = Question
         fields = [
@@ -26,11 +27,6 @@ class QuestionSerializer(serializers.ModelSerializer):
             if len(answers) < 2:
                 raise serializers.ValidationError(
                     'Multiple choice questions must have at least one answer')
-
-            correct_answers = 0
-            for answer in data['answers']:
-                if answer.get('is_correct'):
-                    correct_answers += 1
 
             if not any(answer['is_correct'] for answer in answers):
                 raise serializers.ValidationError(
