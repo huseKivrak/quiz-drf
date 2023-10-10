@@ -7,6 +7,7 @@ from core.models import TimeStampedModel
 from profiles.models import User
 
 
+# Quiz Model:
 class Quiz(TimeStampedModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -28,6 +29,7 @@ class Quiz(TimeStampedModel):
         return reverse('quizzes:detail', kwargs={'slug': self.slug})
 
 
+# Question Model:
 class Question(TimeStampedModel):
     class QuestionType(models.TextChoices):
         MULTIPLE_CHOICE = 'multiple_choice', 'Multiple Choice'
@@ -35,7 +37,7 @@ class Question(TimeStampedModel):
 
     text = models.CharField(max_length=255)
     slug = AutoSlugField(
-        populate_from=lambda instance: instance.quiz.title + '_' + str(instance.order), unique=True)
+        populate_from='text', unique=True)
     uuid = models.UUIDField(
         db_index=True,
         default=uuid_lib.uuid4,
