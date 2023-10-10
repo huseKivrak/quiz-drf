@@ -10,7 +10,7 @@ from profiles.models import User
 class Quiz(TimeStampedModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    slug = AutoSlugField(populate_from='title')
+    slug = AutoSlugField(populate_from='title', unique=True)
     uuid = models.UUIDField(
         db_index=True,
         default=uuid_lib.uuid4,
@@ -35,7 +35,7 @@ class Question(TimeStampedModel):
 
     text = models.CharField(max_length=255)
     slug = AutoSlugField(
-        populate_from=lambda instance: instance.quiz.title + '_' + str(instance.order))
+        populate_from=lambda instance: instance.quiz.title + '_' + str(instance.order), unique=True)
     uuid = models.UUIDField(
         db_index=True,
         default=uuid_lib.uuid4,
