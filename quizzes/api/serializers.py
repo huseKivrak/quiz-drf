@@ -26,7 +26,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
             if len(answers) < 2:
                 raise serializers.ValidationError(
-                    'Multiple choice questions must have at least one answer')
+                    'Multiple choice questions must have at least two answers.')
 
             if not any(answer['is_correct'] for answer in answers):
                 raise serializers.ValidationError(
