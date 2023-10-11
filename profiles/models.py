@@ -16,7 +16,7 @@ class User(AbstractUser):
 
     # type of User:
     type = models.CharField(
-        # ! (2Scoops: had _('Type'), here but caused an error)
+        # ! (2Scoops: had _('Type') here, but caused an error)
         max_length=50, choices=Types.choices, default=Types.STUDENT)
 
     avatar = models.ImageField(
