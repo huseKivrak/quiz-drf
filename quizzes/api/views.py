@@ -87,6 +87,3 @@ class AnswerRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     lookup_field = 'slug'
-
-
-# User Quiz Views:
