@@ -1,6 +1,16 @@
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import InvalidToken
 
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Custom claims:
+        token['username'] = user.username
+        token['email'] = user.email
+        return token
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
     refresh = None
