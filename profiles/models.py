@@ -11,12 +11,12 @@ class User(AbstractUser):
         STUDENT = 'STUDENT', 'Student'
         TEACHER = 'TEACHER', 'Teacher'
 
-    # ? (2Scoops: 'Ensures that creating new users through proxy models works')
+    # ? Two Scoops: 'Ensures that creating new users through proxy models works'
     base_type = Types.STUDENT
 
     # type of User:
     type = models.CharField(
-        # ! (2Scoops: had _('Type') here, but caused an error)
+        # ! Two Scoops: _('Type') here
         max_length=50, choices=Types.choices, default=Types.STUDENT)
 
     avatar = models.ImageField(
