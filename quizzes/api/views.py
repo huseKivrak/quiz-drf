@@ -66,8 +66,6 @@ class QuestionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
 # Answer Views:
-
-
 class AnswerListCreateAPIView(ListCreateAPIView):
     """
     List all answers, or create a new answer.
@@ -87,6 +85,3 @@ class AnswerRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     lookup_field = 'slug'
-
-
-# User Quiz Views:
