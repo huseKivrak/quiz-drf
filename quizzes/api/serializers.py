@@ -6,7 +6,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = [
-            'text', 'is_correct', 'uuid', 'order', 'question']
+            'text', 'is_correct', 'uuid', 'order', 'question', 'created', 'modified']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = [
-            'text', 'slug', 'uuid', 'question_type', 'order', 'quiz', 'author', 'answers']
+            'text', 'slug', 'uuid', 'question_type', 'order', 'quiz', 'author', 'answers', 'created', 'modified']
 
     def validate(self, data):
         """
@@ -41,13 +41,13 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = [
-            'title', 'description', 'slug', 'uuid', 'is_published', 'author', 'questions']
+            'title', 'description', 'slug', 'uuid', 'is_published', 'author', 'questions', 'created', 'modified']
 
     def validate(self, data):
         """
         Validate that quizzes have at least one question before publishing.
         """
-        if data.get('is_published', False) and not data.get('questions'):
+        if data.get('is_published', True) and not data.get('questions'):
             raise serializers.ValidationError(
                 'Quizzes must have at least one question before publishing.')
 
