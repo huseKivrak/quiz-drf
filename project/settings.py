@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
+from datetime import timedelta
 import os
 
 load_dotenv(find_dotenv())
@@ -59,7 +60,7 @@ INSTALLED_APPS = [
 ]
 
 # Allauth settings
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SITE_ID = 1
@@ -74,8 +75,21 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+    'JWT_SERIALIZER': 'profiles.serializers.CustomJWTSerializer',
+    'JWT_AUT_COOKIE_USE_CSRF': True,
     'JWT_AUTH_HTTPONLY': True,
 
+    ## 'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': True,
+    ## 'SESSION_LOGIN': False => no sessionid, csrftoken cookies
+
+    ## 'JWT_AUTH_RETURN_EXPIRATION': True
+    #"access_expiration": "2023-10-29T21:46:14.396436Z",
+    # "refresh_expiration": "2023-11-12T21:41:14.396439Z"
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14)
 }
 
 MIDDLEWARE = [
