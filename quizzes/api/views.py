@@ -1,11 +1,15 @@
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
+    get_object_or_404
 )
 
 from rest_framework.permissions import BasePermission, IsAuthenticatedOrReadOnly, SAFE_METHODS
 from ..models import Quiz, Question, Answer, QuizAttempt, QuestionAttempt
 from .serializers import QuizSerializer, QuestionSerializer, AnswerSerializer, QuizAttemptSerializer, QuestionAttemptSerializer
+from django.db.models import Prefetch
 
 
 class IsAuthorOrReadOnly(BasePermission):
@@ -52,7 +56,6 @@ class QuestionListCreateAPIView(ListCreateAPIView):
 
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    lookup_field = 'slug'
 
 
 class QuestionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -63,7 +66,6 @@ class QuestionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    lookup_field = 'slug'
 
 # Answer Views:
 
@@ -75,7 +77,6 @@ class AnswerListCreateAPIView(ListCreateAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
-    lookup_field = 'slug'
 
 
 class AnswerRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -86,23 +87,27 @@ class AnswerRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
-    lookup_field = 'slug'
 
 # QuizAttempt Views
+
+
 class QuizAttemptListCreateAPIView(ListCreateAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = QuizAttempt.objects.all()
     serializer_class = QuizAttemptSerializer
+
+    def get_queryset(self):
+        return QuizAttempt.objects.filter(user=self.request.user).prefetch_related(
+            Prefetch('question_attempts',
+                     queryset=QuestionAttempt.objects.all())
+        )
 
     def create(self, request, *args, **kwargs):
         user = request.user
         quiz_id = request.data.get('quiz')
-        try:
-            quiz = Quiz.objects.get(id=quiz_id)
-        except Quiz.DoesNotExist:
-            return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        quiz = get_object_or_404(Quiz, id=quiz_id)
         quiz_attempt = QuizAttempt.objects.create(user=user, quiz=quiz)
+
         serializer = QuizAttemptSerializer(quiz_attempt)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -110,7 +115,6 @@ class QuizAttemptListCreateAPIView(ListCreateAPIView):
 # QuestionAttempt Views
 class QuestionAttemptListCreateAPIView(ListCreateAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = QuestionAttempt.objects.all()
     serializer_class = QuestionAttemptSerializer
 
     def create(self, request, *args, **kwargs):
@@ -119,12 +123,10 @@ class QuestionAttemptListCreateAPIView(ListCreateAPIView):
         question_id = request.data.get('question')
         answer_id = request.data.get('answer_selected')
 
-        try:
-            quiz_attempt = QuizAttempt.objects.get(id=quiz_attempt_id, user=user)
-            question = Question.objects.get(id=question_id)
-            answer = Answer.objects.get(id=answer_id)
-        except (QuizAttempt.DoesNotExist, Question.DoesNotExist, Answer.DoesNotExist):
-            return Response({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+        quiz_attempt = get_object_or_404(
+            QuizAttempt, id=quiz_attempt_id, user=user)
+        question = Question.objects.get(id=question_id)
+        answer = Answer.objects.get(id=answer_id)
 
         question_attempt = QuestionAttempt.objects.create(
             quiz_attempt=quiz_attempt,
@@ -132,5 +134,18 @@ class QuestionAttemptListCreateAPIView(ListCreateAPIView):
             answer_selected=answer,
             is_correct=(answer.is_correct)
         )
+
         serializer = QuestionAttemptSerializer(question_attempt)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class QuizAttemptRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthorOrReadOnly,)
+    queryset = QuizAttempt.objects.all()
+    serializer_class = QuizAttemptSerializer
+
+
+class QuestionAttemptRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthorOrReadOnly,)
+    queryset = QuestionAttempt.objects.all()
+    serializer_class = QuestionAttemptSerializer
