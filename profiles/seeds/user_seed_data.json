@@ -1,0 +1,362 @@
+[
+    {
+        "model": "profiles.User",
+        "pk": 31,
+        "fields": {
+            "first_name": "Mrs.",
+            "last_name": "Teacher1",
+            "username": "t_teacher1",
+            "email": "t_teacher1@huse.dev",
+            "type": "TEACHER",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 2,
+        "fields": {
+            "first_name": "Mrs.",
+            "last_name": "Teacher2",
+            "username": "t_teacher2",
+            "email": "t_teacher2@huse.dev",
+            "type": "TEACHER",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 3,
+        "fields": {
+            "first_name": "Miss",
+            "last_name": "Teacher3",
+            "username": "t_teacher3",
+            "email": "t_teacher3@huse.dev",
+            "type": "TEACHER",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 4,
+        "fields": {
+            "first_name": "Mrs.",
+            "last_name": "Teacher4",
+            "username": "t_teacher4",
+            "email": "t_teacher4@huse.dev",
+            "type": "TEACHER",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 5,
+        "fields": {
+            "first_name": "Miss",
+            "last_name": "Teacher5",
+            "username": "t_teacher5",
+            "email": "t_teacher5@huse.dev",
+            "type": "TEACHER",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 6,
+        "fields": {
+            "first_name": "Sunny",
+            "last_name": "Moonbeam",
+            "username": "s_student6",
+            "email": "s_student6@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 7,
+        "fields": {
+            "first_name": "Fido",
+            "last_name": "Starlight",
+            "username": "s_student7",
+            "email": "s_student7@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 8,
+        "fields": {
+            "first_name": "Twinkle",
+            "last_name": "Starlight",
+            "username": "s_student8",
+            "email": "s_student8@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 9,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Sparkle",
+            "username": "s_student9",
+            "email": "s_student9@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 10,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Raindrop",
+            "username": "s_student10",
+            "email": "s_student10@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 11,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Buttercup",
+            "username": "s_student11",
+            "email": "s_student11@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 12,
+        "fields": {
+            "first_name": "Sunny",
+            "last_name": "Buttercup",
+            "username": "s_student12",
+            "email": "s_student12@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 13,
+        "fields": {
+            "first_name": "Twinkle",
+            "last_name": "Starlight",
+            "username": "s_student13",
+            "email": "s_student13@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 14,
+        "fields": {
+            "first_name": "Twinkle",
+            "last_name": "Raindrop",
+            "username": "s_student14",
+            "email": "s_student14@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 15,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Raindrop",
+            "username": "s_student15",
+            "email": "s_student15@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 16,
+        "fields": {
+            "first_name": "Sunny",
+            "last_name": "Starlight",
+            "username": "s_student16",
+            "email": "s_student16@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 17,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Starlight",
+            "username": "s_student17",
+            "email": "s_student17@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 18,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Starlight",
+            "username": "s_student18",
+            "email": "s_student18@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 19,
+        "fields": {
+            "first_name": "Luna",
+            "last_name": "Starlight",
+            "username": "s_student19",
+            "email": "s_student19@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 20,
+        "fields": {
+            "first_name": "Fido",
+            "last_name": "Buttercup",
+            "username": "s_student20",
+            "email": "s_student20@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 21,
+        "fields": {
+            "first_name": "Sunny",
+            "last_name": "Sparkle",
+            "username": "s_student21",
+            "email": "s_student21@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 22,
+        "fields": {
+            "first_name": "Sunny",
+            "last_name": "Moonbeam",
+            "username": "s_student22",
+            "email": "s_student22@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 23,
+        "fields": {
+            "first_name": "Fluffy",
+            "last_name": "Raindrop",
+            "username": "s_student23",
+            "email": "s_student23@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 24,
+        "fields": {
+            "first_name": "Luna",
+            "last_name": "Raindrop",
+            "username": "s_student24",
+            "email": "s_student24@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 25,
+        "fields": {
+            "first_name": "Luna",
+            "last_name": "Raindrop",
+            "username": "s_student25",
+            "email": "s_student25@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 26,
+        "fields": {
+            "first_name": "Twinkle",
+            "last_name": "Buttercup",
+            "username": "s_student26",
+            "email": "s_student26@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 27,
+        "fields": {
+            "first_name": "Fido",
+            "last_name": "Starlight",
+            "username": "s_student27",
+            "email": "s_student27@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 28,
+        "fields": {
+            "first_name": "Luna",
+            "last_name": "Starlight",
+            "username": "s_student28",
+            "email": "s_student28@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 29,
+        "fields": {
+            "first_name": "Luna",
+            "last_name": "Raindrop",
+            "username": "s_student29",
+            "email": "s_student29@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    },
+    {
+        "model": "profiles.User",
+        "pk": 30,
+        "fields": {
+            "first_name": "Sunny",
+            "last_name": "Starlight",
+            "username": "s_student30",
+            "email": "s_student30@huse.dev",
+            "type": "STUDENT",
+            "password": "artemis!"
+        }
+    }
+]
