@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import (
@@ -34,6 +35,36 @@ class QuizListCreateAPIView(ListCreateAPIView):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
     lookup_field = 'slug'
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        quiz = serializer.save(author=request.user)
+
+        # Create nested Questions
+        questions_data = serializer.validated_data.get('questions', [])
+        for order, question_data in enumerate(questions_data, start=0):
+            question = Question.objects.create(
+                quiz=quiz,
+                text=question_data['text'],
+                question_type=question_data['question_type'],
+                order=order,
+                author=request.user
+            )
+
+            answers_data = question_data.get('answers', [])
+
+            for order, answer_data in enumerate(answers_data, start=0):
+                Answer.objects.create(
+                    question=question,
+                    text=answer_data['text'],
+                    is_correct=answer_data['is_correct'],
+                    order=order,
+                )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class QuizRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
