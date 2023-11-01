@@ -75,15 +75,18 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+
     'JWT_SERIALIZER': 'profiles.serializers.CustomJWTSerializer',
+    'REGISTER_SERIALIZER': 'profiles.serializers.CustomRegisterSerializer',
+
     'JWT_AUT_COOKIE_USE_CSRF': True,
     'JWT_AUTH_HTTPONLY': True,
 
-    ## 'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': True,
-    ## 'SESSION_LOGIN': False => no sessionid, csrftoken cookies
+    # 'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': True,
+    # 'SESSION_LOGIN': False => no sessionid, csrftoken cookies
 
-    ## 'JWT_AUTH_RETURN_EXPIRATION': True
-    #"access_expiration": "2023-10-29T21:46:14.396436Z",
+    # 'JWT_AUTH_RETURN_EXPIRATION': True
+    # "access_expiration": "2023-10-29T21:46:14.396436Z",
     # "refresh_expiration": "2023-11-12T21:41:14.396439Z"
 }
 
