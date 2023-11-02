@@ -6,7 +6,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = [
-            'text', 'is_correct', 'uuid', 'order', 'question', 'created', 'modified']
+            'pk', 'question', 'text', 'is_correct', 'uuid', 'order',  'created', 'modified']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = [
-            'text', 'slug', 'uuid', 'question_type', 'order', 'quiz', 'author', 'answers', 'created', 'modified']
+            'pk', 'order', 'quiz', 'text', 'question_type', 'answers', 'slug',  'author',  'uuid', 'created', 'modified']
 
     def validate(self, data):
         """
@@ -41,7 +41,7 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = [
-            'title', 'description', 'slug', 'uuid', 'is_published', 'author', 'questions', 'created', 'modified']
+            'pk', 'title', 'description', 'slug', 'questions', 'is_published', 'author', 'uuid', 'created', 'modified']
 
     def validate(self, data):
         """
@@ -60,9 +60,9 @@ class QuizSerializer(serializers.ModelSerializer):
 class QuizAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizAttempt
-        fields = ['id', 'user', 'quiz',
+        fields = ['pk', 'user', 'quiz',
                   'created', 'modified', 'completed', 'score']
-        # read_only_fields = ['id', 'user', 'quiz',
+        # read_only_fields = ['pk', 'user', 'quiz',
         #           'created', 'modified', 'completed', 'score']
 
     def create(self, validated_data):
@@ -74,9 +74,9 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
 class QuestionAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionAttempt
-        fields = ['id', 'quiz_attempt', 'question', 'created', 'modified',
+        fields = ['pk', 'quiz_attempt', 'question', 'created', 'modified',
                   'answer_selected', 'is_correct', 'time_taken',]
-        read_only_fields = ['id', 'is_correct', 'time_taken']
+        # read_only_fields = ['pk', 'is_correct']
 
         def create(self, validated_data):
             instance = QuestionAttempt.objects.create(**validated_data)
