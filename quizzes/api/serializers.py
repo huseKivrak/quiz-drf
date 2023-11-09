@@ -6,7 +6,15 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = [
-            'pk', 'question', 'text', 'is_correct', 'uuid', 'order',  'created', 'modified']
+            "pk",
+            "question",
+            "text",
+            "is_correct",
+            "uuid",
+            "order",
+            "created",
+            "modified",
+        ]
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -15,23 +23,53 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = [
-            'pk', 'order', 'quiz', 'text', 'question_type', 'answers', 'slug',  'author',  'uuid', 'created', 'modified']
+            "pk",
+            "order",
+            "quiz",
+            "text",
+            "question_type",
+            "answers",
+            "slug",
+            "author",
+            "uuid",
+            "created",
+            "modified",
+        ]
 
     def validate(self, data):
         """
-        Validate multiple choice questions
+        Validate questions and their answers.
         """
-        if data['question_type'] == Question.QuestionType.MULTIPLE_CHOICE:
-            answers = data.get('answers', [])
+        if data["question_type"] == Question.QuestionType.MULTIPLE_CHOICE:
+            answers = data.get("question_answers", [])
 
             if len(answers) < 2:
                 raise serializers.ValidationError(
-                    'Multiple choice questions must have at least two answers.')
+                    "Multiple choice questions must have at least two answers."
+                )
 
-            if not any(answer['is_correct'] for answer in answers):
+            if not any(answer["is_correct"] for answer in answers):
                 raise serializers.ValidationError(
-                    "Multiple choice questions must have at least one correct answer.")
+                    "Multiple choice questions must have at least one correct answer."
+                )
 
+        elif data["question_type"] == Question.QuestionType.TRUE_FALSE:
+            answers = data.get("question_answers", [])
+
+            if len(answers) != 2:
+                raise serializers.ValidationError(
+                    "True/False questions must have exactly two answers."
+                )
+
+        true_answers = [answer for answer in answers if answer["text"] == "True"]
+        false_answers = [answer for answer in answers if answer["text"] == "False"]
+
+        if not (len(true_answers) == 1 and len(false_answers) == 1):
+            raise serializers.ValidationError(
+                """True/False questions
+                must have one 'True' answer
+                and one 'False' answer."""
+            )
         return data
 
 
@@ -41,17 +79,29 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = [
-            'pk', 'title', 'description', 'slug', 'questions', 'is_published', 'author', 'uuid', 'created', 'modified']
+            "pk",
+            "title",
+            "description",
+            "slug",
+            "questions",
+            "is_published",
+            "author",
+            "uuid",
+            "created",
+            "modified",
+        ]
 
     def validate(self, data):
         """
         Validate that quizzes have at least one question before publishing.
         """
-        if data.get('is_published', True) and not data.get('questions'):
+        if data.get("is_published", True) and not data.get("quiz_questions"):
             raise serializers.ValidationError(
-                'Quizzes must have at least one question before publishing.')
+                "Quizzes must have at least one question before publishing."
+            )
 
         return data
+
 
 ##########################################
 ##########################################
@@ -60,13 +110,12 @@ class QuizSerializer(serializers.ModelSerializer):
 class QuizAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizAttempt
-        fields = ['pk', 'user', 'quiz',
-                  'created', 'modified', 'completed', 'score']
+        fields = ["pk", "user", "quiz", "created", "modified", "completed", "score"]
         # read_only_fields = ['pk', 'user', 'quiz',
         #           'created', 'modified', 'completed', 'score']
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = self.context["request"].user
         instance = QuizAttempt.objects.create(user=user, **validated_data)
         return instance
 
@@ -74,8 +123,16 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
 class QuestionAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionAttempt
-        fields = ['pk', 'quiz_attempt', 'question', 'created', 'modified',
-                  'answer_selected', 'is_correct', 'time_taken',]
+        fields = [
+            "pk",
+            "quiz_attempt",
+            "question",
+            "created",
+            "modified",
+            "answer_selected",
+            "is_correct",
+            "time_taken",
+        ]
         # read_only_fields = ['pk', 'is_correct']
 
         def create(self, validated_data):

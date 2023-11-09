@@ -45,7 +45,7 @@ class QuizListCreateAPIView(ListCreateAPIView):
 
         # Create nested Questions
         questions_data = serializer.validated_data.get('questions', [])
-        for order, question_data in enumerate(questions_data, start=0):
+        for order, question_data in enumerate(questions_data, start=1):
             question = Question.objects.create(
                 quiz=quiz,
                 text=question_data['text'],
@@ -56,7 +56,7 @@ class QuizListCreateAPIView(ListCreateAPIView):
 
             answers_data = question_data.get('answers', [])
 
-            for order, answer_data in enumerate(answers_data, start=0):
+            for order, answer_data in enumerate(answers_data, start=1):
                 Answer.objects.create(
                     question=question,
                     text=answer_data['text'],
