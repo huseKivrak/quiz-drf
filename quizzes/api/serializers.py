@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from ..models import Quiz, Question, Answer, QuizAttempt, QuestionAttempt
+from ..models import (
+    Quiz,
+    Question,
+    TrueFalseQuestion,
+    MultipleChoiceQuestion,
+    Answer,
+    QuizAttempt,
+    QuestionAttempt,
+)
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -17,18 +25,17 @@ class AnswerSerializer(serializers.ModelSerializer):
         ]
 
 
-class QuestionSerializer(serializers.ModelSerializer):
-    answers = AnswerSerializer(many=True, required=False)
+class TrueFalseQuestionSerializer(serializers.ModelSerializer):
+    correct_answer = serializers.CharField(write_only=True)
 
     class Meta:
-        model = Question
+        model = TrueFalseQuestion
         fields = [
             "pk",
             "order",
             "quiz",
+            "correct_answer",
             "text",
-            "question_type",
-            "answers",
             "slug",
             "author",
             "uuid",
@@ -36,45 +43,109 @@ class QuestionSerializer(serializers.ModelSerializer):
             "modified",
         ]
 
-    def validate(self, data):
-        """
-        Validate questions and their answers.
-        """
-        if data["question_type"] == Question.QuestionType.MULTIPLE_CHOICE:
-            answers = data.get("question_answers", [])
+    def create(self, validated_data):
+        correct_answer = validated_data.pop("correct_answer")
+        question = super().create(validated_data)
 
-            if len(answers) < 2:
-                raise serializers.ValidationError(
-                    "Multiple choice questions must have at least two answers."
-                )
+        if correct_answer == "true":
+            question.question_answers.filter(text="True").update(is_correct=True)
+        elif correct_answer == "false":
+            question.question_answers.filter(text="False").update(is_correct=True)
 
-            if not any(answer["is_correct"] for answer in answers):
-                raise serializers.ValidationError(
-                    "Multiple choice questions must have at least one correct answer."
-                )
+        return question
 
-        elif data["question_type"] == Question.QuestionType.TRUE_FALSE:
-            answers = data.get("question_answers", [])
-
-            if len(answers) != 2:
-                raise serializers.ValidationError(
-                    "True/False questions must have exactly two answers."
-                )
-
-        true_answers = [answer for answer in answers if answer["text"] == "True"]
-        false_answers = [answer for answer in answers if answer["text"] == "False"]
-
-        if not (len(true_answers) == 1 and len(false_answers) == 1):
+    def validate_correct_answer(self, value):
+        if value not in ["true", "false"]:
             raise serializers.ValidationError(
-                """True/False questions
-                must have one 'True' answer
-                and one 'False' answer."""
+                "Correct answer must be 'true' or 'false'."
             )
-        return data
+        return value
+
+
+class MultipleChoiceQuestionSerializer(serializers.ModelSerializer):
+    question_answers = AnswerSerializer(many=True, required=True)
+
+    class Meta:
+        model = MultipleChoiceQuestion
+        fields = [
+            "pk",
+            "order",
+            "quiz",
+            "text",
+            "question_answers",
+            "slug",
+            "author",
+            "uuid",
+            "created",
+            "modified",
+        ]
+
+    def validate_question_answers(self, value):
+        """
+        Check that exactly one answer is marked correct.
+        """
+        correct_answer_count = sum(answer.get("is_correct", False) for answer in value)
+        if correct_answer_count != 1:
+            raise serializers.ValidationError(
+                "Exactly one answer must be marked correct."
+            )
+        return value
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for questions, independant of quiz creation.
+    """
+    question_type = serializers.CharField(write_only=True)
+    question_answers = AnswerSerializer(many=True, required=False, write_only=True)
+
+    class Meta:
+        model = Question
+        fields = [
+            "pk",
+            "order",
+            "quiz",
+            "question_type",
+            "question_answers",
+            "text",
+            "slug",
+            "author",
+            "uuid",
+            "created",
+            "modified",
+        ]
+
+    def create(self, validated_data):
+        question_type = validated_data.pop("question_type")
+        answers_data = validated_data.pop("question_answers", [])
+
+        if question_type == "multiple_choice":
+            question = MultipleChoiceQuestion.objects.create(**validated_data)
+            for answer_data in answers_data:
+                Answer.objects.create(question=question, **answer_data)
+        elif question_type == "true_false":
+            question = TrueFalseQuestion.objects.create(**validated_data)
+
+        return question
+
+    def to_representation(self, instance):
+        if isinstance(instance, TrueFalseQuestion):
+            return TrueFalseQuestionSerializer(instance=instance).data
+        elif isinstance(instance, MultipleChoiceQuestion):
+            return MultipleChoiceQuestionSerializer(instance=instance).data
+        return super().to_representation(instance)
+
+    def validate_question_answers(self, value):
+        if self.initial_data["question_type"] == "multiple_choice" and len(value) < 2:
+            raise serializers.ValidationError(
+                "Multiple choice questions must have at least two answers."
+            )
+        return value
 
 
 class QuizSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, required=False)
+    author = serializers.SerializerMethodField()
 
     class Meta:
         model = Quiz
@@ -90,6 +161,9 @@ class QuizSerializer(serializers.ModelSerializer):
             "created",
             "modified",
         ]
+
+    def get_author(self, obj):
+        return obj.author.username
 
     def validate(self, data):
         """

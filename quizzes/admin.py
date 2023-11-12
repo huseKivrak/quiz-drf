@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Quiz, Question, Answer
+from .models import TrueFalseQuestion, MultipleChoiceQuestion, Answer
 
-admin.site.register(Quiz)
-admin.site.register(Question)
+admin.site.register(TrueFalseQuestion)
+admin.site.register(MultipleChoiceQuestion)
 admin.site.register(Answer)

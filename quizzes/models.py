@@ -16,7 +16,7 @@ class Quiz(TimeStampedModel):
     is_published = models.BooleanField(default=False)
 
     author = models.ForeignKey(
-        User, related_name="quizzes", on_delete=models.SET_NULL, null=True
+        User, related_name="user_quizzes", on_delete=models.SET_NULL, null=True
     )
 
     class Meta:
@@ -27,70 +27,65 @@ class Quiz(TimeStampedModel):
         return reverse("quizzes:detail", kwargs={"slug": self.slug})
 
 
-# Question Model:
 class Question(TimeStampedModel):
-    class QuestionType(models.TextChoices):
-        MULTIPLE_CHOICE = "multiple_choice", "Multiple Choice"
-        TRUE_FALSE = "true_false", "True/False"
+    """
+    Abstract Question model that defines common fields and methods for
+    all question types.
+    """
 
     text = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from="text", unique=True)
     uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
 
-    question_type = models.CharField(
-        max_length=50,
-        choices=QuestionType.choices,
-        default=QuestionType.MULTIPLE_CHOICE,
-    )
-
     order = models.PositiveIntegerField(default=1)
 
     quiz = models.ForeignKey(
-        Quiz, related_name="questions", on_delete=models.SET_NULL, null=True
+        Quiz, related_name="quiz_questions", on_delete=models.SET_NULL, null=True
     )
 
     author = models.ForeignKey(
-        User, related_name="questions", on_delete=models.SET_NULL, null=True
+        User, related_name="user_questions", on_delete=models.SET_NULL, null=True
     )
 
     class Meta:
         ordering = ["order"]
-        unique_together = ["quiz", "order"]
 
-    def get_absolute_url(self):
-        return reverse("quizzes:question_detail", kwargs={"slug": self.slug})
+    # def get_slug(self):
+    #     return self.text + "-" + str(self.order)
 
-    # def save(self, *args, **kwargs):
-    #     """
-    #     Create 'True' and 'False' answers for new True/False questions
-    #     """
 
-    #     super(Question, self).save(*args, **kwargs)
+class TrueFalseQuestion(Question):
+    """
+    Question type that has a true or false answer.
+    """
 
-        # if not self.pk and self.question_type == self.QuestionType.TRUE_FALSE:
-        #     Answer.objects.create(
-        #         text='True',
-        #         question=self)
-        #     Answer.objects.create(
-        #         text='False',
-        #         question=self)
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        super(TrueFalseQuestion, self).save(*args, **kwargs)
+
+        if is_new:
+            Answer.objects.create(text="True", question=self)
+            Answer.objects.create(text="False", question=self)
+
+
+class MultipleChoiceQuestion(Question):
+    """
+    Question type that has multiple choices as answers.
+    """
 
 
 # Answer model
 class Answer(TimeStampedModel):
+    """
+    Answer model for questions.
+    """
+
     text = models.TextField()
     is_correct = models.BooleanField(default=False)
     uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
-
-    def get_slug(self):
-        return self.question.slug + "-" + str(self.order)
-
-    slug = AutoSlugField(populate_from=get_slug, unique=True)
-
     order = models.PositiveIntegerField(default=1)
-
     question = models.ForeignKey(
-        Question, related_name="answers", on_delete=models.CASCADE
+        Question, related_name="question_answers", on_delete=models.CASCADE
     )
 
     class Meta:
@@ -98,6 +93,7 @@ class Answer(TimeStampedModel):
         unique_together = ["question", "order"]
 
 
+###################################################
 ###################################################
 ###################################################
 

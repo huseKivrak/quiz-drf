@@ -4,12 +4,29 @@ from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
-    get_object_or_404
+    get_object_or_404,
 )
 
-from rest_framework.permissions import BasePermission, IsAuthenticatedOrReadOnly, SAFE_METHODS
-from ..models import Quiz, Question, Answer, QuizAttempt, QuestionAttempt
-from .serializers import QuizSerializer, QuestionSerializer, AnswerSerializer, QuizAttemptSerializer, QuestionAttemptSerializer
+from rest_framework.permissions import (
+    BasePermission,
+    IsAuthenticatedOrReadOnly,
+    SAFE_METHODS,
+)
+from ..models import (
+    Quiz,
+    Question,
+    Answer,
+    QuizAttempt,
+    QuestionAttempt,
+)
+from .serializers import (
+    QuizSerializer,
+    TrueFalseQuestionSerializer,
+    MultipleChoiceQuestionSerializer,
+    AnswerSerializer,
+    QuizAttemptSerializer,
+    QuestionAttemptSerializer,
+)
 from django.db.models import Prefetch
 
 
@@ -30,39 +47,32 @@ class QuizListCreateAPIView(ListCreateAPIView):
     """
     List all quizzes, or create a new quiz.
     """
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
-    lookup_field = 'slug'
+    lookup_field = "slug"
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         quiz = serializer.save(author=request.user)
 
         # Create nested Questions
-        questions_data = serializer.validated_data.get('questions', [])
-        for order, question_data in enumerate(questions_data, start=1):
-            question = Question.objects.create(
-                quiz=quiz,
-                text=question_data['text'],
-                question_type=question_data['question_type'],
-                order=order,
-                author=request.user
+        questions_data = serializer.validated_data.get("questions", [])
+        for question_data in questions_data:
+            question_type = question_data.get("question_type")
+            question_serializer_class = (
+                MultipleChoiceQuestionSerializer
+                if question_type == "multiple_choice"
+                else TrueFalseQuestionSerializer
             )
 
-            answers_data = question_data.get('answers', [])
-
-            for order, answer_data in enumerate(answers_data, start=1):
-                Answer.objects.create(
-                    question=question,
-                    text=answer_data['text'],
-                    is_correct=answer_data['is_correct'],
-                    order=order,
-                )
+            question_serializer = question_serializer_class(data=question_data)
+            question_serializer.is_valid(raise_exception=True)
+            question_serializer.save(quiz=quiz, author=request.user)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -71,32 +81,53 @@ class QuizRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete a quiz instance.
     """
+
     permission_classes = (IsAuthorOrReadOnly,)
 
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
-    lookup_field = 'slug'
+    lookup_field = "slug"
 
 
 # Question Views:
-class QuestionListCreateAPIView(ListCreateAPIView):
-    """
-    List all questions, or create a new question.
-    """
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+# class QuestionListCreateAPIView(ListCreateAPIView):
+#     """
+#     List all questions, or create a new question.
+#     """
 
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+#     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+#     queryset = Question.objects.all()
+#     serializer_class = QuestionSerializer
+
+#     def create(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         question_type = serializer.validated_data.get("question_type")
+#         question_serializer_class = (
+#             MultipleChoiceQuestionSerializer
+#             if question_type == "multiple_choice"
+#             else TrueFalseQuestionSerializer
+#         )
+
+#        question_serializer = question_serializer_class(data=serializer.validated_data)
+#         question_serializer.is_valid(raise_exception=True)
+#         question_serializer.save(author=request.user)
+
+#         return Response(question_serializer.data, status=status.HTTP_201_CREATED)
 
 
-class QuestionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    """
-    Retrieve, update or delete a question instance.
-    """
-    permission_classes = (IsAuthorOrReadOnly,)
+# class QuestionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     """
+#     Retrieve, update or delete a question instance.
+#     """
 
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+#     permission_classes = (IsAuthorOrReadOnly,)
+
+#     queryset = Question.objects.all()
+#     serializer_class = QuestionSerializer
+
 
 # Answer Views:
 
@@ -105,6 +136,7 @@ class AnswerListCreateAPIView(ListCreateAPIView):
     """
     List all answers, or create a new answer.
     """
+
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
@@ -114,10 +146,12 @@ class AnswerRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete a answer instance.
     """
+
     permission_classes = (IsAuthorOrReadOnly,)
 
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
+
 
 # QuizAttempt Views
 
@@ -128,13 +162,12 @@ class QuizAttemptListCreateAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         return QuizAttempt.objects.filter(user=self.request.user).prefetch_related(
-            Prefetch('question_attempts',
-                     queryset=QuestionAttempt.objects.all())
+            Prefetch("question_attempts", queryset=QuestionAttempt.objects.all())
         )
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        quiz_id = request.data.get('quiz')
+        quiz_id = request.data.get("quiz")
 
         quiz = get_object_or_404(Quiz, id=quiz_id)
         quiz_attempt = QuizAttempt.objects.create(user=user, quiz=quiz)
@@ -150,12 +183,11 @@ class QuestionAttemptListCreateAPIView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        quiz_attempt_id = request.data.get('quiz_attempt')
-        question_id = request.data.get('question')
-        answer_id = request.data.get('answer_selected')
+        quiz_attempt_id = request.data.get("quiz_attempt")
+        question_id = request.data.get("question")
+        answer_id = request.data.get("answer_selected")
 
-        quiz_attempt = get_object_or_404(
-            QuizAttempt, id=quiz_attempt_id, user=user)
+        quiz_attempt = get_object_or_404(QuizAttempt, id=quiz_attempt_id, user=user)
         question = Question.objects.get(id=question_id)
         answer = Answer.objects.get(id=answer_id)
 
@@ -163,7 +195,7 @@ class QuestionAttemptListCreateAPIView(ListCreateAPIView):
             quiz_attempt=quiz_attempt,
             question=question,
             answer_selected=answer,
-            is_correct=(answer.is_correct)
+            is_correct=(answer.is_correct),
         )
 
         serializer = QuestionAttemptSerializer(question_attempt)
