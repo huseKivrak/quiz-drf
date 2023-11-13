@@ -16,7 +16,7 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = [
             "pk",
             "question",
-            "text",
+            "answer_text",
             "is_correct",
             "uuid",
             "order",
@@ -35,7 +35,7 @@ class TrueFalseQuestionSerializer(serializers.ModelSerializer):
             "order",
             "quiz",
             "correct_answer",
-            "text",
+            "question_text",
             "slug",
             "author",
             "uuid",
@@ -71,7 +71,7 @@ class MultipleChoiceQuestionSerializer(serializers.ModelSerializer):
             "pk",
             "order",
             "quiz",
-            "text",
+            "question_text",
             "question_answers",
             "slug",
             "author",
@@ -91,13 +91,21 @@ class MultipleChoiceQuestionSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def create(self, validated_data):
+        answers_data = validated_data.pop("question_answers")
+        question = super().create(validated_data)
+        for answer_data in answers_data:
+            Answer.objects.create(question=question, **answer_data)
+        return question
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     """
     Serializer for questions, independant of quiz creation.
     """
+
     question_type = serializers.CharField(write_only=True)
-    question_answers = AnswerSerializer(many=True, required=False, write_only=True)
+    question_answers = AnswerSerializer(many=True, required=False)
 
     class Meta:
         model = Question
@@ -106,8 +114,8 @@ class QuestionSerializer(serializers.ModelSerializer):
             "order",
             "quiz",
             "question_type",
+            "question_text",
             "question_answers",
-            "text",
             "slug",
             "author",
             "uuid",
@@ -117,12 +125,9 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         question_type = validated_data.pop("question_type")
-        answers_data = validated_data.pop("question_answers", [])
 
         if question_type == "multiple_choice":
             question = MultipleChoiceQuestion.objects.create(**validated_data)
-            for answer_data in answers_data:
-                Answer.objects.create(question=question, **answer_data)
         elif question_type == "true_false":
             question = TrueFalseQuestion.objects.create(**validated_data)
 
@@ -144,7 +149,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class QuizSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, required=False)
+    quiz_questions = QuestionSerializer(many=True, required=True)
     author = serializers.SerializerMethodField()
 
     class Meta:
@@ -154,7 +159,7 @@ class QuizSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "slug",
-            "questions",
+            "quiz_questions",
             "is_published",
             "author",
             "uuid",
@@ -175,6 +180,13 @@ class QuizSerializer(serializers.ModelSerializer):
             )
 
         return data
+
+    def create(self, validated_data):
+        question_data = validated_data.pop("quiz_questions")
+        quiz = Quiz.objects.create(**validated_data)
+        for question in question_data:
+            Question.objects.create(quiz=quiz, **question)
+        return quiz
 
 
 ##########################################

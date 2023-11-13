@@ -61,7 +61,7 @@ class QuizListCreateAPIView(ListCreateAPIView):
         quiz = serializer.save(author=request.user)
 
         # Create nested Questions
-        questions_data = serializer.validated_data.get("questions", [])
+        questions_data = serializer.validated_data.get("quiz_questions", [])
         for question_data in questions_data:
             question_type = question_data.get("question_type")
             question_serializer_class = (

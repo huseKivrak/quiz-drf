@@ -33,7 +33,7 @@ class Question(TimeStampedModel):
     all question types.
     """
 
-    text = models.CharField(max_length=255)
+    question_text = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from="text", unique=True)
     uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
 
@@ -80,7 +80,7 @@ class Answer(TimeStampedModel):
     Answer model for questions.
     """
 
-    text = models.TextField()
+    answer_text = models.TextField()
     is_correct = models.BooleanField(default=False)
     uuid = models.UUIDField(db_index=True, default=uuid_lib.uuid4, editable=False)
     order = models.PositiveIntegerField(default=1)
