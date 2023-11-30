@@ -90,5 +90,5 @@ class QuizSerializer(serializers.ModelSerializer):
             answers_data = question.pop("question_answers", [])
             Question.objects.create(quiz=quiz, **question)
             for answer in answers_data:
-                Answer.objects.create(question=question, **answers_data)
+                Answer.objects.create(question=question, **answer)
         return quiz
