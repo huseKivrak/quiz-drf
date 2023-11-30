@@ -6,7 +6,6 @@ from model_utils.models import (
     UUIDModel,
 )
 from model_utils import FieldTracker, Choices
-from polymorphic.models import PolymorphicModel
 from profiles.models import User
 
 
@@ -32,50 +31,33 @@ class Quiz(TimeStampedModel, StatusModel, UUIDModel):
         return self.title
 
 
-class Question(
-    PolymorphicModel,
-    TimeStampedModel,
-    UUIDModel,
-):
+class Question(TimeStampedModel, UUIDModel):
     """
-    Question model that defines common fields and methods for
-    all question types.
+    Question model for quizzes.
     """
 
+    QUESTION_TYPES = Choices(
+        ("true_false", "True/False"),
+        ("multiple_choice", "Multiple Choice"),
+    )
+
     question_text = models.CharField(max_length=255)
+    question_type = models.CharField(max_length=30, choices=QUESTION_TYPES)
     order = models.PositiveIntegerField(default=1)
     quiz = models.ForeignKey(
-        Quiz, related_name="quiz_questions", on_delete=models.SET_NULL, null=True
+        Quiz, related_name="quiz_questions", on_delete=models.CASCADE
     )
+
     author = models.ForeignKey(
         User, related_name="user_questions", on_delete=models.SET_NULL, null=True
     )
 
     class Meta:
         ordering = ["order"]
+        unique_together = ["quiz", "order"]
 
     def __str__(self):
         return f"{self.quiz.title} - Q#{self.order}"
-
-
-class TrueFalseQuestion(Question):
-    """
-    Question type that has a true or false answer.
-    """
-
-    def save(self, *args, **kwargs):
-        is_new = self._state.adding
-        super(TrueFalseQuestion, self).save(*args, **kwargs)
-
-        if is_new:
-            Answer.objects.create(answer_text="True", question=self)
-            Answer.objects.create(answer_text="False", question=self)
-
-
-class MultipleChoiceQuestion(Question):
-    """
-    Question type that has multiple choices as answers.
-    """
 
 
 # Answer model
